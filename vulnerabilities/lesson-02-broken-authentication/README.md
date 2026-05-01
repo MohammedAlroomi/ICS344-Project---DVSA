@@ -198,33 +198,17 @@ User B's real `$TOKEN_B` continues to return their own orders correctly — no r
 
 ## 9. Structured Operation and Security Analysis
 
-### Table A — Operation Analysis
+### Table A — Structured Analysis
 
-| # | Operation | Actor | Input | Output | Auth Required |
+| Vulnerability | Intended Rule(s) | Artifacts Used to Infer Rule | Normal Behavior Evidence | Exploit Behavior Evidence |
+|---|---|---|---|---|
+| Broken Authentication | Only a valid, cryptographically verified JWT issued by Cognito may determine user identity. User B must never access User C's orders. | Browser login and orders workflow; captured `/order` API request; JWT structure and decoded claims; `order-manager.js` source code; API responses. | Using `$TOKEN_B`, the Orders API returns only User B's own orders (Rampage, $40). User C's orders are not visible. | After replacing `username` and `sub` with User C's UUID and reusing the original signature, the forged `$FAKE_AS_C` token returns User C's order list (Super Mario 2, $45) — proving the backend never verified the signature. |
+
+### Table B — Deviation and Fix Analysis
+
+| Vulnerability | Why This Is a Deviation | Deviation Class | Fix Applied (Where) | Post-Fix Verification | Optional Latency Before / After |
 |---|---|---|---|---|---|
-| 1 | Register accounts | User B, User C | Email, password | Cognito user created | No |
-| 2 | Login and capture JWT | User B | Credentials | `$TOKEN_B` (real JWT) | Yes |
-| 3 | Decode token payload | Attacker | `$TOKEN_B`, `$TOKEN_C` | `username` / `sub` UUIDs | No (local) |
-| 4 | Forge token as User C | Attacker | User C's UUID | `$FAKE_AS_C` | No (local) |
-| 5 | Send forged token to API | Attacker | `$FAKE_AS_C` | User C's order list | Bypassed |
-| 6 | Deploy fix | Developer | Patched `order-manager.js` | Updated Lambda function | AWS console |
-| 7 | Verify fix — forged token | Attacker | `$FAKE_AS_C` | `invalid token` error | — |
-| 8 | Verify fix — real token | User B | `$TOKEN_B` | User B's own orders | Yes |
-
-### Table B — Security Analysis
-
-| Attribute | Before Fix | After Fix |
-|---|---|---|
-| **Vulnerability Class** | Broken Authentication (OWASP API2) | Mitigated |
-| **JWT Signature Verified** | ❌ No | ✅ Yes (via Cognito JWKS) |
-| **Issuer Validated** | ❌ No | ✅ Yes |
-| **Expiry Validated** | ❌ No | ✅ Yes (node-jose default) |
-| **Cross-user Data Access** | ✅ Possible | ❌ Blocked |
-| **Forged Token Accepted** | ✅ Yes | ❌ No — `invalid token` |
-| **Legitimate Token Works** | ✅ Yes | ✅ Yes |
-| **CVSS Score (estimate)** | 9.1 (Critical) | N/A (resolved) |
-| **Attack Complexity** | Low — requires only Base64 decoding | — |
-| **Privileges Required** | Low — any valid account | — |
+| Broken Authentication | The backend trusted identity claims (`username`, `sub`) from a JWT whose integrity was never verified. Attacker-controlled payload fields were used to authorize access to another user's private data without Cognito ever issuing that token. | Intentional misuse / security-relevant abuse | Verify JWT signature and required claims (`iss`, `exp`, `token_use`) before trusting `username` or `sub`. Fix applied in `DVSA-ORDER-MANAGER/order-manager.js` via `verifyCognitoJwt()` backed by Cognito JWKS. | `$FAKE_AS_C` is rejected with `{"status":"err","msg":"invalid token"}`. User C's orders are no longer returned. `$TOKEN_B` still returns only User B's own orders correctly. | Not measured |
 
 ---
 
