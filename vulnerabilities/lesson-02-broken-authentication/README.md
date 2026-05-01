@@ -42,11 +42,11 @@ Because the signature was never checked, an attacker could supply a token with a
 |---|---|
 | Platform | AWS Lambda (Node.js) |
 | Auth Provider | AWS Cognito User Pool |
-| API Endpoint | `https://oxc78p6nli.execute-api.us-east-1.amazonaws.com/Stage/order` |
+| API Endpoint | `https://[api-id].execute-api.us-east-1.amazonaws.com/Stage/order` |
 | Vulnerable Function | `DVSA-ORDER-MANAGER` |
 | JWT Library | `node-jose` |
-| Attacker Account (User B) | `prisosteam+userb@gmail.com` |
-| Victim Account (User C) | `prisosteam+userc@gmail.com` |
+| Attacker Account (User B) | `userb@example.com` |
+| Victim Account (User C) | `userc@example.com` |
 
 Two users were registered on DVSA. User B acts as the attacker. User C is the victim whose orders will be stolen.
 
@@ -74,8 +74,8 @@ for name in ["TOKEN_B", "TOKEN_C"]:
 ```
 
 This reveals:
-- **TOKEN_B:** `username = 04782418-4041-703b-4c8f-0364aa06148d`
-- **TOKEN_C:** `username = e4c8a478-0091-7020-758c-742afad11e2d`
+- **TOKEN_B:** `username = xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
+- **TOKEN_C:** `username = yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy`
 
 ### Step 3 — Forge a token as User C
 Construct a new JWT embedding User C's `username` and `sub` in the payload. Because the signature is never verified server-side, any value in the signature section is accepted. Save the forged token as `$FAKE_AS_C`.
