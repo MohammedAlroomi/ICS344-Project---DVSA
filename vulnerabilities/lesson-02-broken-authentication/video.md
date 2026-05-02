@@ -1,0 +1,3 @@
+# Lesson 02 — Demo Video
+
+[Watch Demo Video](https://kfupmedusa-my.sharepoint.com/:v:/g/personal/s202250760_kfupm_edu_sa/IQCVelthu04nR5f02XKrtIRlAa0N25xsGb2uuWCOx0ulaWY?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJPbmVEcml2ZUZvckJ1c2luZXNzIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXciLCJyZWZlcnJhbFZpZXciOiJNeUZpbGVzTGlua0NvcHkifX0&e=gw7Yu7)
